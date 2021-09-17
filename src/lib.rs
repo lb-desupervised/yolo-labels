@@ -60,8 +60,7 @@ impl Unnormaliser for Label {
 	}
 }
 
-#[allow(dead_code)]
-struct Labels {
+pub struct Labels {
 	// We have to use a nested item because we can't implement From<String>
 	// directly on Vec<Label>
 	labels: Vec<Label>,
@@ -76,10 +75,21 @@ impl From<&str> for Labels {
 }
 
 impl Labels {
-	#[allow(dead_code)]
 	pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
 		let string = std::fs::read_to_string(path)?;
 		Ok(Labels::from(string.as_str()))
+	}
+}
+
+impl Unnormaliser for Labels {
+	fn unnormalise(&self, dimensions: (u32, u32)) -> Self {
+		Labels {
+			labels: self
+				.labels
+				.iter()
+				.map(|x| x.unnormalise(dimensions))
+				.collect(),
+		}
 	}
 }
 
@@ -122,5 +132,8 @@ mod test {
 
 		let labels = Labels::from_file(file.path()).unwrap();
 		assert_eq!(labels.labels.len(), 2);
+
+		let new_labels = labels.unnormalise((2000, 1300));
+		assert_eq!(new_labels.labels.len(), 2);
 	}
 }
