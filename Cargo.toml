@@ -1,6 +1,6 @@
 [package]
 name = "yolo-labels"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 description = "Library to parse yolo labels"
 license-file = "LICENSE.txt"

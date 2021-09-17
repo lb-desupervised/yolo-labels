@@ -2,14 +2,14 @@ use std::path::Path;
 
 /// YOLO label.
 #[derive(Debug)]
-struct Label {
-	label_index: i8,
-	x_centre: f32,
-	y_centre: f32,
-	width: f32,
-	height: f32,
-	probability: Option<f32>,
-	object_id: Option<i8>,
+pub struct Label {
+	pub label_index: i8,
+	pub x_centre: f32,
+	pub y_centre: f32,
+	pub width: f32,
+	pub height: f32,
+	pub probability: Option<f32>,
+	pub object_id: Option<i8>,
 }
 
 pub trait Unnormaliser {
@@ -81,6 +81,15 @@ impl Labels {
 	}
 }
 
+// Enables `labels.iter()`
+impl std::ops::Deref for Labels {
+	type Target = [Label];
+
+	fn deref(&self) -> &Self::Target {
+		&self.labels[..]
+	}
+}
+
 impl Unnormaliser for Labels {
 	fn unnormalise(&self, dimensions: (u32, u32)) -> Self {
 		Labels {
@@ -135,5 +144,15 @@ mod test {
 
 		let new_labels = labels.unnormalise((2000, 1300));
 		assert_eq!(new_labels.labels.len(), 2);
+	}
+
+	#[test]
+	fn try_iterating_labels() {
+		let labels_string = "-1 0.603856 0.368098 0.048642 0.075372\n\
+		                     -1 0.603856 0.368098 0.048642 0.075372";
+		let labels = Labels::from(labels_string);
+		for label in labels.iter() {
+			assert_eq!(label.label_index, -1);
+		}
 	}
 }
