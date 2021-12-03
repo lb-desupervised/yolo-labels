@@ -8,7 +8,7 @@ In your `Config.toml`:
 
 ```toml
 [dependencies]
-yolo-labels = "0.3.0"
+yolo-labels = "0.3.1"
 ```
 
 In your code:
