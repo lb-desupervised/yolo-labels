@@ -18,7 +18,7 @@ pub trait Unnormaliser {
 
 impl From<&str> for Label {
 	fn from(s: &str) -> Self {
-		let split: Vec<&str> = s.split(" ").collect();
+		let split: Vec<&str> = s.split(|x| x == ' ' || x == '\t').collect();
 
 		let probability = if split.len() > 5 {
 			Some(split[5].parse().unwrap())
@@ -69,7 +69,11 @@ pub struct Labels {
 impl From<&str> for Labels {
 	fn from(s: &str) -> Self {
 		Labels {
-			labels: s.split("\n").map(Label::from).collect::<Vec<Label>>(),
+			labels: s
+				.split("\n")
+				.filter(|x| !x.is_empty())
+				.map(Label::from)
+				.collect::<Vec<Label>>(),
 		}
 	}
 }
