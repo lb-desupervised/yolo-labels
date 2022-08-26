@@ -9,11 +9,23 @@ pub struct Label {
 	pub width: f32,
 	pub height: f32,
 	pub probability: Option<f32>,
-	pub object_id: Option<i8>,
 }
 
 pub trait Unnormaliser {
 	fn unnormalise(&self, dimensions: (u32, u32)) -> Self;
+}
+
+impl std::fmt::Display for Label {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		let mut s = format!(
+			"{} {} {} {} {}",
+			self.label_index, self.x_centre, self.y_centre, self.width, self.height
+		);
+		if let Some(p) = self.probability {
+			s.push_str(&format!("{}", p));
+		}
+		write!(f, "{}", s)
+	}
 }
 
 impl From<&str> for Label {
@@ -26,12 +38,6 @@ impl From<&str> for Label {
 			None
 		};
 
-		let object_id = if split.len() > 6 {
-			Some(split[6].parse().unwrap())
-		} else {
-			None
-		};
-
 		Self {
 			label_index: split[0].parse().unwrap(),
 			x_centre: split[1].parse().unwrap(),
@@ -39,7 +45,6 @@ impl From<&str> for Label {
 			width: split[3].parse().unwrap(),
 			height: split[4].parse().unwrap(),
 			probability,
-			object_id,
 		}
 	}
 }
@@ -55,7 +60,6 @@ impl Unnormaliser for Label {
 			width: self.width * width,
 			height: self.height * height,
 			probability: self.probability,
-			object_id: self.object_id,
 		}
 	}
 }
@@ -75,6 +79,15 @@ impl From<&str> for Labels {
 				.map(Label::from)
 				.collect::<Vec<Label>>(),
 		}
+	}
+}
+
+impl std::fmt::Display for Labels {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		for label in self.iter() {
+			write!(f, "{}\n", label)?;
+		}
+		Ok(())
 	}
 }
 
@@ -158,5 +171,13 @@ mod test {
 		for label in labels.iter() {
 			assert_eq!(label.label_index, -1);
 		}
+	}
+
+	#[test]
+	fn display_label() {
+		let labels_string = "-1 0.603856 0.368098 0.048642 0.075372\n\
+		                     -1 0.603856 0.368098 0.048642 0.075372\n";
+		let labels = Labels::from(labels_string);
+		assert_eq!(labels_string, format!("{}", labels));
 	}
 }
