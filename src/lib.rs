@@ -92,6 +92,10 @@ impl std::fmt::Display for Labels {
 }
 
 impl Labels {
+	pub fn new(labels: Vec<Label>) -> Self {
+		Labels { labels }
+	}
+
 	pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
 		let string = std::fs::read_to_string(path)?;
 		Ok(Labels::from(string.as_str()))
